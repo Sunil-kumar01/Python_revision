@@ -46,3 +46,9 @@ chain = prompt | llm | output_parser
 if user_input:
 	response = chain.invoke({"question": user_input})
 	st.write(response)
+
+###till now streamlit was done and langchain thing was done in a chain basis for the paid keys which will be charged based on tokens and monotoring will be done in langchain cloud for cost and usage###
+###Now we will do the same thing using langchain chatbot framework where we will create an agent which will use the same llm and prompt template but will have more features like memory, tool usage etc###
+# Note: Make sure to run this script with `streamlit run src/langchain/chatbot/app.py`
+
+#now let us use the ollama for the free key and which is opensource
