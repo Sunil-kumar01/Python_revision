@@ -1,6 +1,6 @@
 env/
 venv/
-src/Langchain_project/.venv/
+src/langchain/.venv/
 .env
 __pycache__/
 *.pyc
