@@ -1,0 +1,11 @@
+{
+	"accessibility.signals.terminalBell": {
+		"sound": "off"
+	},
+	"files.exclude": {
+		"**/__pycache__": true,
+		"**/*.pyc": true,
+		".DS_Store": true,
+		"src/Langchain_project/.venv": true
+	}
+}

@@ -1,0 +1,7 @@
+env/
+venv/
+src/Langchain_project/.venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
