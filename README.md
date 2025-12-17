@@ -174,3 +174,49 @@ They're already listed in `.gitignore` for safety!
 - Always check for `(.venv)` in your prompt before running or installing.
 - If you see import errors, confirm `which python` shows `src/langchain/.venv/bin/python`.
 - Keep dependencies in `src/langchain/requirements.txt` and install inside the active venv.
+
+---
+
+## 🧭 Quick Runbook: Local Ollama Chatbot (`localama.py`)
+
+Follow these steps any time you want to run the local Ollama chatbot.
+
+1) Activate the project venv
+```bash
+cd /Users/sunilkumar/Downloads/Python_revision
+source src/langchain/.venv/bin/activate
+```
+
+2) Ensure the model is installed (one-time)
+```bash
+ollama pull gemma3:1b
+```
+
+3) Start the Streamlit app
+```bash
+streamlit run src/langchain/chatbot/localama.py --server.port 8514 --server.headless true
+```
+
+4) Open the app
+- Local URL: http://localhost:8514
+- The UI shows the active model and the Ollama endpoint.
+
+5) If you see a 404 about the model
+- Run the pull command again: `ollama pull gemma3:1b`
+- Verify models: `curl -s http://localhost:11434/api/tags | jq -r '.models[].name'`
+
+6) When finished
+```bash
+deactivate
+```
+
+**Key checks before running:**
+- Terminal prompt shows `(.venv)`
+- `which python` → `/Users/sunilkumar/Downloads/Python_revision/src/langchain/.venv/bin/python`
+- `which streamlit` → `/Users/sunilkumar/Downloads/Python_revision/src/langchain/.venv/bin/streamlit`
+
+**What changed in this project (beginner summary):**
+- Fixed the Ollama model name to the exact tag: `gemma3:1b`.
+- Set `BASE_URL` to `http://localhost:11434` so Streamlit hits the local Ollama server.
+- Added UI captions that show the active model and available models (via `/api/tags`).
+- Confirmed the app runs from the venv (`source src/langchain/.venv/bin/activate`).
