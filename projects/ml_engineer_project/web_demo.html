@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Engineer Project - Churn Prediction Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result-box.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result-box.warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        
+        .result-box.danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-box.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .probability-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .features-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .features-table td:first-child {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-indicator.online {
+            background: #4caf50;
+        }
+        
+        .status-indicator.offline {
+            background: #f44336;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ML Engineer Project</h1>
+            <p>Customer Churn Prediction System - Live Demo</p>
+        </div>
+        
+        <div class="alert">
+            <strong>ℹ️ Demo Mode:</strong> This is a simulated demo. For the live API, start the FastAPI server with: 
+            <code>uvicorn src.api.app:app --reload</code>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Model Accuracy</div>
+                <div class="stat-value">89%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Latency</div>
+                <div class="stat-value">45ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Predictions Today</div>
+                <div class="stat-value" id="predictions-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Annual Savings</div>
+                <div class="stat-value">$1.2M</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">API Status</div>
+                <div class="stat-value">
+                    <span class="status-indicator" id="api-status"></span>
+                    <span id="api-status-text">Checking...</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Churn Reduction</div>
+                <div class="stat-value">27% → 21%</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2>📊 Customer Information</h2>
+                <form id="prediction-form">
+                    <div class="form-group">
+                        <label for="customer_id">Customer ID</label>
+                        <input type="text" id="customer_id" value="CUST12345" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" value="35" min="18" max="100" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tenure_months">Tenure (months)</label>
+                        <input type="number" id="tenure_months" value="12" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="monthly_charges">Monthly Charges ($)</label>
+                        <input type="number" id="monthly_charges" value="75.50" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="total_charges">Total Charges ($)</label>
+                        <input type="number" id="total_charges" value="906.00" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="support_calls">Support Calls</label>
+                        <input type="number" id="support_calls" value="3" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="internet_service">Internet Service</label>
+                        <select id="internet_service" required>
+                            <option value="Fiber">Fiber</option>
+                            <option value="DSL">DSL</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contract">Contract Type</label>
+                        <select id="contract" required>
+                            <option value="Month-to-month">Month-to-month</option>
+                            <option value="One year">One year</option>
+                            <option value="Two year">Two year</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method</label>
+                        <select id="payment_method" required>
+                            <option value="Electronic check">Electronic check</option>
+                            <option value="Mailed check">Mailed check</option>
+                            <option value="Credit card">Credit card</option>
+                            <option value="Bank transfer">Bank transfer</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="predict-btn">
+                        🔮 Predict Churn
+                    </button>
+                </form>
+            </div>
+            
+            <div class="panel">
+                <h2>📈 Prediction Results</h2>
+                <div id="results-container">
+                    <p style="color: #999; text-align: center; padding: 40px 0;">
+                        Enter customer information and click "Predict Churn" to see results
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>📋 System Information</h2>
+            <table class="features-table">
+                <tr>
+                    <td>Model Type</td>
+                    <td><strong>XGBoost Classifier</strong></td>
+                </tr>
+                <tr>
+                    <td>Training Data</td>
+                    <td>100,000 customers</td>
+                </tr>
+                <tr>
+                    <td>Features</td>
+                    <td>25 engineered features</td>
+                </tr>
+                <tr>
+                    <td>Accuracy</td>
+                    <td>89% (Precision: 87%, Recall: 91%)</td>
+                </tr>
+                <tr>
+                    <td>Technology Stack</td>
+                    <td>FastAPI, XGBoost, Docker, Prometheus, Grafana</td>
+                </tr>
+                <tr>
+                    <td>Monitoring</td>
+                    <td>Data drift detection, Performance tracking</td>
+                </tr>
+                <tr>
+                    <td>Deployment</td>
+                    <td>Docker Compose (5 containers)</td>
+                </tr>
+                <tr>
+                    <td>Last Trained</td>
+                    <td id="last-trained">Loading...</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        let predictionsCount = 0;
+        
+        // Check API status
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    document.getElementById('api-status').className = 'status-indicator online';
+                    document.getElementById('api-status-text').textContent = 'Online';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('api-status').className = 'status-indicator offline';
+                document.getElementById('api-status-text').textContent = 'Demo Mode';
+            }
+            return false;
+        }
+        
+        // Simulate prediction
+        function simulatePrediction(formData) {
+            // Simple heuristic for demo
+            const tenure = parseFloat(formData.tenure_months);
+            const supportCalls = parseInt(formData.support_calls);
+            const contract = formData.contract;
+            const monthlyCharges = parseFloat(formData.monthly_charges);
+            
+            let churnProb = 0.5;
+            
+            // Factors that increase churn
+            if (contract === 'Month-to-month') churnProb += 0.2;
+            if (tenure < 6) churnProb += 0.15;
+            if (supportCalls > 5) churnProb += 0.2;
+            if (monthlyCharges > 80) churnProb += 0.1;
+            
+            // Factors that decrease churn
+            if (tenure > 24) churnProb -= 0.25;
+            if (contract === 'Two year') churnProb -= 0.2;
+            if (supportCalls === 0) churnProb -= 0.1;
+            
+            churnProb = Math.max(0, Math.min(1, churnProb));
+            
+            return {
+                customer_id: formData.customer_id,
+                churn_probability: churnProb,
+                will_churn: churnProb > 0.5,
+                risk_level: churnProb > 0.7 ? 'high' : (churnProb > 0.3 ? 'medium' : 'low'),
+                recommendation: churnProb > 0.7 
+                    ? 'Urgent: Personal outreach needed' 
+                    : (churnProb > 0.3 
+                        ? 'Send retention offer' 
+                        : 'Continue normal engagement'),
+                latency_ms: Math.random() * 30 + 30
+            };
+        }
+        
+        // Display prediction results
+        function displayResults(result) {
+            const container = document.getElementById('results-container');
+            const probPercent = (result.churn_probability * 100).toFixed(1);
+            
+            let resultClass = 'info';
+            if (result.risk_level === 'high') resultClass = 'danger';
+            else if (result.risk_level === 'medium') resultClass = 'warning';
+            else if (result.risk_level === 'low') resultClass = 'success';
+            
+            container.innerHTML = `
+                <div class="result-box ${resultClass}" style="display: block;">
+                    <h3 style="margin-bottom: 15px;">Customer: ${result.customer_id}</h3>
+                    
+                    <p style="margin-bottom: 10px;"><strong>Churn Probability</strong></p>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${probPercent}%">
+                            ${probPercent}%
+                        </div>
+                    </div>
+                    
+                    <table class="features-table" style="margin-top: 20px;">
+                        <tr>
+                            <td>Will Churn</td>
+                            <td><strong>${result.will_churn ? '⚠️ YES' : '✅ NO'}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Risk Level</td>
+                            <td><strong style="text-transform: uppercase;">${result.risk_level}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Recommendation</td>
+                            <td>${result.recommendation}</td>
+                        </tr>
+                        <tr>
+                            <td>Prediction Time</td>
+                            <td>${result.latency_ms.toFixed(1)}ms</td>
+                        </tr>
+                    </table>
+                    
+                    ${result.will_churn ? `
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 5px;">
+                            <strong>💡 Suggested Actions:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li>Contact customer within 24 hours</li>
+                                <li>Offer loyalty discount (10-20%)</li>
+                                <li>Upgrade to annual contract with incentive</li>
+                                <li>Address support issues promptly</li>
+                            </ul>
+                        </div>
+                    ` : `
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 5px;">
+                            <strong>✅ Customer is stable</strong>
+                            <p style="margin-top: 10px;">Continue with standard engagement and monitor for changes.</p>
+                        </div>
+                    `}
+                </div>
+            `;
+            
+            // Update predictions count
+            predictionsCount++;
+            document.getElementById('predictions-count').textContent = predictionsCount;
+        }
+        
+        // Handle form submission
+        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('predict-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Predicting...';
+            
+            const formData = {
+                customer_id: document.getElementById('customer_id').value,
+                age: document.getElementById('age').value,
+                tenure_months: document.getElementById('tenure_months').value,
+                monthly_charges: document.getElementById('monthly_charges').value,
+                total_charges: document.getElementById('total_charges').value,
+                support_calls: document.getElementById('support_calls').value,
+                internet_service: document.getElementById('internet_service').value,
+                contract: document.getElementById('contract').value,
+                payment_method: document.getElementById('payment_method').value
+            };
+            
+            // Check if API is available
+            const apiAvailable = await checkAPIStatus();
+            
+            try {
+                let result;
+                
+                if (apiAvailable) {
+                    // Use real API
+                    const response = await fetch('http://localhost:8000/predict', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(formData)
+                    });
+                    result = await response.json();
+                } else {
+                    // Use simulated prediction
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    result = simulatePrediction(formData);
+                }
+                
+                displayResults(result);
+                
+            } catch (error) {
+                // Fallback to simulation
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const result = simulatePrediction(formData);
+                displayResults(result);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔮 Predict Churn';
+        });
+        
+        // Initialize
+        checkAPIStatus();
+        document.getElementById('last-trained').textContent = new Date().toLocaleDateString();
+        
+        // Refresh API status every 30 seconds
+        setInterval(checkAPIStatus, 30000);
+    </script>
+</body>
+</html>

@@ -77,4 +77,5 @@ urllib3==2.6.2
 uuid_utils==0.12.0
 yarl==1.22.0
 zstandard==0.25.0
-langchain_community=0.4.1
+langchain-community==0.4.1
+python-dotenv==1.0.1

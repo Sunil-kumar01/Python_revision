@@ -1,0 +1,79 @@
+# Configuration for Churn Prediction ML Pipeline
+
+# Data paths
+data:
+  raw_data_path: "data/raw/customer_data.csv"
+  processed_data_path: "data/processed/cleaned_data.csv"
+  features_path: "data/features/engineered_features.csv"
+  
+# Model settings
+model:
+  name: "xgboost_churn_classifier"
+  version: "1.0.0"
+  algorithm: "xgboost"
+  random_state: 42
+  
+  # Hyperparameters
+  params:
+    learning_rate: 0.1
+    max_depth: 6
+    n_estimators: 200
+    subsample: 0.8
+    colsample_bytree: 0.8
+    scale_pos_weight: 2.7  # For class imbalance (73/27)
+    
+  # Training settings
+  test_size: 0.2
+  validation_size: 0.1
+  cv_folds: 5
+
+# Feature engineering
+features:
+  numerical:
+    - tenure
+    - monthly_charges
+    - total_charges
+    - num_services
+    - support_calls
+    
+  categorical:
+    - contract_type
+    - payment_method
+    - internet_service
+    - tech_support
+    
+  target: "churn"
+  
+  # SMOTE settings
+  smote:
+    enabled: true
+    sampling_strategy: 0.8
+    k_neighbors: 5
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  log_level: "info"
+  model_path: "models/churn_model.pkl"
+  
+# Monitoring
+monitoring:
+  enable_mlflow: true
+  mlflow_uri: "http://localhost:5000"
+  
+  # Data drift thresholds
+  drift_threshold: 0.3
+  accuracy_threshold: 0.85
+  
+  # Retraining triggers
+  retrain_on_drift: true
+  retrain_on_accuracy_drop: true
+  retrain_schedule: "weekly"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/ml_pipeline.log"

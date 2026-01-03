@@ -1,0 +1,60 @@
+# Project artifacts and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Data files
+*.csv
+*.xlsx
+*.parquet
+data/
+raw_data/
+
+# Model files
+models/
+*.pkl
+*.joblib
+*.h5
+*.pth
+
+# Logs
+*.log
+logs/
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Docker
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
