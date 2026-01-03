@@ -180,9 +180,18 @@ def demo_model_training(df: pd.DataFrame):
     try:
         from sklearn.model_selection import train_test_split
         from sklearn.preprocessing import LabelEncoder
-        from xgboost import XGBClassifier
         from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
         from imblearn.over_sampling import SMOTE
+        
+        # Try XGBoost, fallback to RandomForest if OpenMP issues on Mac
+        try:
+            from xgboost import XGBClassifier
+            use_xgboost = True
+            print_success("Using XGBoost model")
+        except Exception as e:
+            from sklearn.ensemble import RandomForestClassifier
+            use_xgboost = False
+            print_info("XGBoost unavailable (OpenMP issue on Mac), using RandomForest instead")
     except ImportError:
         print_error("ML libraries not installed. Install requirements.txt")
         return None
@@ -228,18 +237,31 @@ def demo_model_training(df: pd.DataFrame):
     print()
     
     # Train model
-    print_info("Training XGBoost model...")
-    print("  This may take 30-60 seconds...")
-    
-    start_time = time.time()
-    
-    model = XGBClassifier(
-        max_depth=5,
-        learning_rate=0.1,
-        n_estimators=100,  # Reduced for demo
-        random_state=42,
-        eval_metric='logloss'
-    )
+    if use_xgboost:
+        print_info("Training XGBoost model...")
+        print("  This may take 30-60 seconds...")
+        
+        start_time = time.time()
+        
+        model = XGBClassifier(
+            max_depth=5,
+            learning_rate=0.1,
+            n_estimators=100,  # Reduced for demo
+            random_state=42,
+            eval_metric='logloss'
+        )
+    else:
+        print_info("Training RandomForest model...")
+        print("  This may take 30-60 seconds...")
+        
+        start_time = time.time()
+        
+        model = RandomForestClassifier(
+            max_depth=5,
+            n_estimators=100,  # Reduced for demo
+            random_state=42,
+            n_jobs=-1
+        )
     
     model.fit(X_train_balanced, y_train_balanced)
     
@@ -512,12 +534,14 @@ def main():
     print("  5. API Usage (code examples in Python/JS/curl)")
     print()
     
-    input(f"{Colors.YELLOW}Press Enter to start the demo...{Colors.ENDC}")
+    # input(f"{Colors.YELLOW}Press Enter to start the demo...{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Starting demo...{Colors.ENDC}")
     
     try:
         # Demo 1: Data Pipeline
         df = demo_data_pipeline()
-        input(f"\n{Colors.YELLOW}Press Enter to continue to Model Training...{Colors.ENDC}")
+        # input(f"\n{Colors.YELLOW}Press Enter to continue to Model Training...{Colors.ENDC}")
+        print(f"\n{Colors.YELLOW}Continuing to Model Training...{Colors.ENDC}")
         
         # Demo 2: Model Training
         result = demo_model_training(df)
@@ -526,15 +550,18 @@ def main():
             return
         
         model, feature_cols = result
-        input(f"\n{Colors.YELLOW}Press Enter to continue to Predictions...{Colors.ENDC}")
+        # input(f"\n{Colors.YELLOW}Press Enter to continue to Predictions...{Colors.ENDC}")
+        print(f"\n{Colors.YELLOW}Continuing to Predictions...{Colors.ENDC}")
         
         # Demo 3: Predictions
         demo_predictions(model, df, feature_cols)
-        input(f"\n{Colors.YELLOW}Press Enter to continue to Monitoring...{Colors.ENDC}")
+        # input(f"\n{Colors.YELLOW}Press Enter to continue to Monitoring...{Colors.ENDC}")
+        print(f"\n{Colors.YELLOW}Continuing to Monitoring...{Colors.ENDC}")
         
         # Demo 4: Monitoring
         demo_monitoring()
-        input(f"\n{Colors.YELLOW}Press Enter to continue to API Usage...{Colors.ENDC}")
+        # input(f"\n{Colors.YELLOW}Press Enter to continue to API Usage...{Colors.ENDC}")
+        print(f"\n{Colors.YELLOW}Continuing to API Usage...{Colors.ENDC}")
         
         # Demo 5: API Usage
         demo_api_usage()
